@@ -2524,8 +2524,9 @@ static void UpdateInputStateNaomi(u32 port)
 
 		 if (force_offscreen || input_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_IS_OFFSCREEN))
 		 {
-			mo_x_abs[port] = -1;
-			mo_y_abs[port] = -1;
+			mo_x_abs[port] = 0;
+			mo_y_abs[port] = 0;
+			
 		 }
 		 else
 		 {
@@ -2911,8 +2912,8 @@ void UpdateInputState(u32 port)
 
 		 if (force_offscreen || input_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_IS_OFFSCREEN))
 		 {
-			mo_x_abs[port] = -1;
-			mo_y_abs[port] = -1;
+			mo_x_abs[port] = 0;
+			mo_y_abs[port] = 0;
 		 }
 		 else
 		 {
