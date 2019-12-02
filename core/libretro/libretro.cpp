@@ -2526,7 +2526,11 @@ static void UpdateInputStateNaomi(u32 port)
 		 {
 			mo_x_abs[port] = 0;
 			mo_y_abs[port] = 0;
-			
+			 if (input_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_TRIGGER) || input_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_RELOAD))
+		 	 {
+			 if (settings.System == DC_PLATFORM_NAOMI)
+			   kcode[port] &= ~NAOMI_BTN1_KEY;
+			 }
 		 }
 		 else
 		 {
