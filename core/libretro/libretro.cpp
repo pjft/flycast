@@ -2911,11 +2911,8 @@ void UpdateInputState(u32 port)
 		 if (input_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_RELOAD))
 		 {
 			force_offscreen = true;
-			kcode[port] &= ~DC_BTN_B;
+			kcode[port] &= ~DC_BTN_A;
 			 
-			mo_x_abs[port] = -1000;
-			mo_y_abs[port] = -1000;
-			lightgun_params[port].offscreen = true;
 		 }
 
 		  if (force_offscreen || input_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_IS_OFFSCREEN))
