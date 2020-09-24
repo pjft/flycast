@@ -281,7 +281,7 @@ void retro_set_input_state(retro_input_state_t cb)
 {
    input_cb = cb;
    // PJT
-   for (int i = 0; i < 4; i++) {
+   /*for (int i = 0; i < 4; i++) {
     int m0x = input_cb(i, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_X);
     int m0y = input_cb(i, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_Y);
     int m0l = input_cb(i, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_LEFT);
@@ -292,9 +292,9 @@ void retro_set_input_state(retro_input_state_t cb)
     int l0t = input_cb(i, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_TRIGGER);
     int l0a = input_cb(i, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_AUX_A);
 
-    ERROR_LOG(COMMON, "Port: %d : Mouse X: %d Y: %d L: %d R: %d | Gun X: %d Y: %d T: %d A: ", m0x, m0y, m0l, m0r, l0x, l0y, l0t, l0a);
+    ERROR_LOG(COMMON, "Port: %d : Mouse X: %d Y: %d L: %d R: %d | Gun X: %d Y: %d T: %d A: %d ", port, m0x, m0y, m0l, m0r, l0x, l0y, l0t, l0a);
     // END PJT
-  }
+  }*/
 }
 
 static void input_set_deadzone_stick( int percent )
@@ -2627,6 +2627,18 @@ static void UpdateInputStateNaomi(u32 port)
    ERROR_LOG(COMMON, "Updating NAOMI State");
    int id;
    int max_id;
+
+   int m0x = input_cb(port, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_X);
+    int m0y = input_cb(port, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_Y);
+    int m0l = input_cb(port, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_LEFT);
+    int m0r = input_cb(port, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_RIGHT);
+
+    int l0x = input_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_SCREEN_X);
+    int l0y = input_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_SCREEN_Y);
+    int l0t = input_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_TRIGGER);
+    int l0a = input_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_AUX_A);
+
+    ERROR_LOG(COMMON, "Port: %d : Mouse X: %d Y: %d L: %d R: %d | Gun X: %d Y: %d T: %d A: %d ", port, m0x, m0y, m0l, m0r, l0x, l0y, l0t, l0a);
 
    switch (maple_devices[port])
    {
