@@ -2582,6 +2582,7 @@ static uint16_t get_analog_trigger(
 
 static void updateMouseState(u32 port)
 {
+  ERROR_LOG(COMMON, "Updating Mouse State");
    mo_x_delta[port] = input_cb(port, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_X);
    mo_y_delta[port] = input_cb(port, RETRO_DEVICE_MOUSE, 0, RETRO_DEVICE_ID_MOUSE_Y);
 
@@ -2608,7 +2609,7 @@ static void updateMouseState(u32 port)
 
 static void UpdateInputStateNaomi(u32 port)
 {
-   INFO_LOG(COMMON, "Updating NAOMI State");
+   ERROR_LOG(COMMON, "Updating NAOMI State");
    int id;
    int max_id;
 
@@ -2616,7 +2617,7 @@ static void UpdateInputStateNaomi(u32 port)
    {
    case MDT_LightGun:
 	  {
-      INFO_LOG(COMMON, "Is Lightgun");
+      ERROR_LOG(COMMON, "Is Lightgun");
 		 //
 		 // -- buttons
 		 setDeviceButtonState(port, RETRO_DEVICE_LIGHTGUN, RETRO_DEVICE_ID_LIGHTGUN_TRIGGER);
@@ -2649,17 +2650,17 @@ static void UpdateInputStateNaomi(u32 port)
 		 }
 		 else
 		 {
-      INFO_LOG(COMMON, "Not offscreen, updating");
+      ERROR_LOG(COMMON, "Not offscreen, updating");
 			int x = input_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_SCREEN_X);
 			int y = input_cb(port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_SCREEN_Y);
 			mo_x_abs[port] = (x + 0x8000) * 640.f / 0x10000;
 			mo_y_abs[port] = (y + 0x8000) * 480.f / 0x10000;
 
-      INFO_LOG(COMMON, "BEFORE: Port: %d, X: %d, Y: %d", port, x, y);
+      ERROR_LOG(COMMON, "BEFORE: Port: %d, X: %d, Y: %d", port, x, y);
 			lightgun_params[port].offscreen = false;
 			lightgun_params[port].x = mo_x_abs[port];
 			lightgun_params[port].y = mo_y_abs[port];
-      INFO_LOG(COMMON, "AFTER: Port: %d, X: %d, Y: %d", port, x, y);
+      ERROR_LOG(COMMON, "AFTER: Port: %d, X: %d, Y: %d", port, x, y);
 		 }
 	  }
 	  break;
@@ -2784,7 +2785,7 @@ static void UpdateInputStateNaomi(u32 port)
 
 void UpdateInputState(u32 port)
 {
-   INFO_LOG(COMMON, "Updating Input State");
+   ERROR_LOG(COMMON, "Updating Input State");
    if (gl_ctx_resetting)
 	  return;
 
