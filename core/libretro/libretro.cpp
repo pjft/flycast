@@ -2791,6 +2791,7 @@ static void UpdateInputStateNaomi(u32 port)
 
 void UpdateInputState(u32 port)
 {
+    return;
    if (gl_ctx_resetting)
 	  return;
 
