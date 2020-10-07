@@ -2637,6 +2637,7 @@ u16 jvs_io_board::read_rotary_encoder(f32 &encoder_value, f32 delta_value)
 
 u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_out)
 {
+	ERROR_LOG(JVS, "START MESSAGE");
 	u8 jvs_cmd = buffer_in[0];
 	if (jvs_cmd == 0xF0)		// JVS reset
 		// Nothing to do
@@ -2761,6 +2762,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 		break;
 
 	default:
+		ERROR_LOG(JVS, "Reading Inputs: %d.", jvs_cmd);
 		if (jvs_cmd >= 0x20 && jvs_cmd <= 0x38) // Read inputs and more
 		{
 			LOGJVS("JVS Node %d: ", node_id);
@@ -2775,12 +2777,12 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 				case 0x20:	// Read digital input
 					{
 						JVS_STATUS1();	// report byte
-						LOGJVS("btns ");
+						ERROR_LOG(JVS, "btns ");
 
 						u8 global_btns = 0;
 						if (!(kcode[0] & NAOMI_TEST_KEY))		// Global test button
 						   global_btns |= 0x80;
-						LOGJVS("glob %02x ", global_btns);
+						ERROR_LOG(JVS, "glob %02x ", global_btns);
 						JVS_OUT(global_btns);		// test, tilt1, tilt2, tilt3, unused, unused, unused, unused
 
 						u32 next_keycode = 0;
@@ -2804,7 +2806,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 							  keycode |= next_keycode;
 							  next_keycode = new_keycode;
 						   }
-						   LOGJVS("P%d %02x ", first_player + player + 1, (keycode >> 8) & 0xFF);
+						   ERROR_LOG(JVS, "P%d %02x ", first_player + player + 1, (keycode >> 8) & 0xFF);
 						   JVS_OUT(keycode >> 8);
 						   if (buffer_in[cmdi + 2] > 1)
 						   {
@@ -2859,6 +2861,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						LOGJVS("ana ");
 						if (lightgun_as_analog)
 						{
+							ERROR_LOG(JVS, "lightgun as analog");
 							// Death Crimson / Confidential Mission
 							while (axis < buffer_in[cmdi + 1] && first_player * 2 + axis < 8)
 							{
@@ -2871,7 +2874,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 								   x = 0;
 								   y = 0;
 							   }
-							   LOGJVS("P%d x,y:%4x,%4x ", player_num + 1, x, y);
+							   ERROR_LOG(JVS, "P%d x,y:%4x,%4x ", player_num + 1, x, y);
 							   JVS_OUT(x >> 8);		// X, MSB
 							   JVS_OUT(x);			// X, LSB
 							   axis++;
@@ -2913,6 +2916,9 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   		player_axis = naomi_game_inputs->axes[player_axis].axis;
 						   	}
 						   	axis_value = read_analog_axis(player_num, player_axis, inverted);
+						   	if (settings.mapping.JammaSetup == JVS::Mazan && node_id == 2)
+						   		// Hack for Mazan
+						   		axis_value = axis_value;
 						   }
 						   LOGJVS("P%d.%d:%4x ", player_num + 1, player_axis + 1, axis_value);
 						   JVS_OUT(axis_value >> 8);
@@ -2951,6 +2957,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 
 				case 0x25:	// Read screen pos inputs
 					{
+						ERROR_LOG(JVS, "Reading screen pos inputs");
 						JVS_STATUS1();	// report byte
 						u32 channel = buffer_in[cmdi + 1] - 1;
 						int player_num = first_player + channel;
@@ -2971,7 +2978,20 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   u32 yr = 0x1fe - 0x40;
 						   s16 x = mo_x_abs[player_num] * xr / 639 + 0x37;
 						   s16 y = mo_y_abs[player_num] * yr / 479 + 0x40;
-						   LOGJVS("P%d lightgun %4x,%4x ", player_num + 1, x, y);
+
+						   if (settings.mapping.JammaSetup == JVS::Mazan && node_id == 2)
+						   {
+						   	// node_id 2 is the sensor close to the player
+						   	if (mo_x_abs[player_num] > 320)
+						   		x = (320 + ((mo_x_abs[player_num]-320)/2)) * xr / 639 + 0x37;
+						   	else
+						   		x = (320 - ((320-mo_x_abs[player_num])/2)) * xr / 639 + 0x37;
+						   	y = (479 - ((479-mo_y_abs[player_num])/2)) * yr / 479 + 0x40;
+						   	//x= 320 * xr / 639 + 0x37;
+						   	//y = 440 * yr / 479 + 0x40;
+						   }
+						   ERROR_LOG(JVS, "P%d lightgun %4x,%4x - Sensor: %d - XComputed: %u, Ycomputed: %u", player_num + 1, x, y,
+						   	node_id, x, y);
 						   JVS_OUT(x >> 8);		// X, MSB
 						   JVS_OUT(x);			// X, LSB
 						   JVS_OUT(y >> 8);		// Y, MSB
@@ -3012,7 +3032,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 		break;
 	}
 	jvs_length = length - 3;
-
+	ERROR_LOG(JVS, "FINISHED");
 	return length;
 }
 
