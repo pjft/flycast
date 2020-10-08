@@ -2763,6 +2763,8 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 
 	default:
 		ERROR_LOG(JVS, "Reading Inputs: %d.", jvs_cmd);
+		bool stabbing = false;
+		bool parry = false;
 		if (jvs_cmd >= 0x20 && jvs_cmd <= 0x38) // Read inputs and more
 		{
 			LOGJVS("JVS Node %d: ", node_id);
@@ -2806,6 +2808,19 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 							  keycode |= next_keycode;
 							  next_keycode = new_keycode;
 						   }
+						   if (settings.mapping.JammaSetup == JVS::Mazan) {
+						   		switch (keycode)
+						   		{
+						   			case 1:
+						   			case 3:
+							  			stabbing = true;
+							  			break;
+							  		case 2:
+							  			parry = true;
+							  			break;
+						   		}
+						   	}
+
 						   ERROR_LOG(JVS, "P%d %02x ", first_player + player + 1, (keycode >> 8) & 0xFF);
 						   JVS_OUT(keycode >> 8);
 						   if (buffer_in[cmdi + 2] > 1)
@@ -2978,20 +2993,108 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   u32 yr = 0x1fe - 0x40;
 						   s16 x = mo_x_abs[player_num] * xr / 639 + 0x37;
 						   s16 y = mo_y_abs[player_num] * yr / 479 + 0x40;
+						   s16 origx = x;
+						   s16 origy = y;
 
-						   if (settings.mapping.JammaSetup == JVS::Mazan && node_id == 2)
+					   	   s16 xbuf = 8;
+						   s16 ybuf = 40;
+						   s16 xblock = 40;
+						   s16 xblockoffset = 100;
+						   s16 yblock = 60;
+						   s16 yblockthresh = 160;
+						   s16 yadjust = 40;
+						   s16 ylowerthresh = 400;
+
+						   // TO DO
+						   // Lower overall sword position on screen, relative to mouse
+						   // fix stabbing
+
+						   if (settings.mapping.JammaSetup == JVS::Mazan)
 						   {
-						   	// node_id 2 is the sensor close to the player
-						   	if (mo_x_abs[player_num] > 320)
-						   		x = (320 + ((mo_x_abs[player_num]-320)/2)) * xr / 639 + 0x37;
-						   	else
-						   		x = (320 - ((320-mo_x_abs[player_num])/2)) * xr / 639 + 0x37;
-						   	y = (479 - ((479-mo_y_abs[player_num])/2)) * yr / 479 + 0x40;
-						   	//x= 320 * xr / 639 + 0x37;
-						   	//y = 440 * yr / 479 + 0x40;
+						      origy = (mo_y_abs[player_num]+yadjust) * yr / 479 + 0x40;	
+						   	  if (node_id == 1 && !stabbing && ! parry) {
+
+						   	  	if (mo_y_abs[player_num] < yblockthresh) {
+							   		// block
+							   		y = (yblockthresh/*mo_y_abs[player_num] + yblock*/) * yr / 479 + 0x40;
+							   		if (mo_x_abs[player_num] <= 320)
+							   			x = ((xblockoffset+mo_x_abs[player_num])) * xr / 639 + 0x37;
+							   		else
+							   			x = ((mo_x_abs[player_num]-xblockoffset)) * xr / 639 + 0x37;
+						   	  	}
+						   	  	else {
+						   	  		// lower bounds
+						   	  		if (mo_y_abs[player_num] + yadjust <= 479)
+						   	  			y = (mo_y_abs[player_num] + yadjust) * yr / 479 + 0x40;
+						   	  		else
+						   	  			y = (479 - (479 - mo_y_abs[player_num] )/2) * yr / 479 + 0x40;
+						   	  	}
+						   	  }
+						   	  if (node_id == 2 || stabbing || parry) {
+							   	// node_id 2 is the sensor close to the player
+							   	////// ATTEMPT 1:
+							   	// Good, overall
+							   	// low range of movement with the mouse - mouse needs to be stuck in the lower-center part of the screen
+							   	/*
+							   	if (mo_x_abs[player_num] > 320)
+							   		x = (320 + ((mo_x_abs[player_num]-320)/2)) * xr / 639 + 0x37;
+							   	else
+							   		x = (320 - ((320-mo_x_abs[player_num])/2)) * xr / 639 + 0x37;
+							   	y = (479 - ((479-mo_y_abs[player_num])/2)) * yr / 479 + 0x40;
+							   	*/
+
+							   	/*if (mo_x_abs[player_num] > 320)
+							   		x = (320 + ((mo_x_abs[player_num]-320)/2)) * xr / 639 + 0x37;
+							   	else
+							   		x = (320 - ((320-mo_x_abs[player_num])/2)) * xr / 639 + 0x37;*/
+							   	//y = (mo_y_abs[player_num] + 20) * yr / 479 + 0x40;
+
+							   	
+							   	////// ATTEMPT 2:
+							   	// Adjust attempt 1 to mitigate problems
+							   	// low range of movement with the mouse - mouse needs to be stuck in the lower-center part of the screen
+
+
+							   	if (mo_y_abs[player_num] < yblockthresh) {
+							   		// block
+							   		y = (yblockthresh/*mo_y_abs[player_num] + yblock*/) * yr / 479 + 0x40;
+
+							   		if (mo_x_abs[player_num] <= 320)
+							   			x = ((xblockoffset+mo_x_abs[player_num]+xblock)) * xr / 639 + 0x37;
+							   		else
+							   			x = ((mo_x_abs[player_num]-xblockoffset-xblock)) * xr / 639 + 0x37;
+							   	} 
+							   	else
+							   	{
+							   		// middle of the screen, to center handle
+								   	if (mo_x_abs[player_num] > 320)
+								   		x = (320 + ((mo_x_abs[player_num]-320)/2)) * xr / 639 + 0x37;
+								   	else
+								   		x = (320 - ((320-mo_x_abs[player_num])/2)) * xr / 639 + 0x37;
+
+								   	// avoid angle to be too steep or sword won't register
+								    x = (x - origx > xbuf || x - origx < -xbuf) ? origx + xbuf * (((x - origx) > 0) - ((x - origx) < 0)): x;
+
+
+								    if (mo_y_abs[player_num] <= ylowerthresh) {
+								    	/*
+								    	if (mo_y_abs[player_num] + yadjust <= ylowerthresh)
+							   	  			y = (mo_y_abs[player_num] + yadjust) * yr / 479 + 0x40;
+							   	  		else
+							   	  			y = (ylowerthresh - (ylowerthresh -mo_y_abs[player_num] )/2) * yr / 479 + 0x40;
+								    	*/
+
+								    	if (mo_y_abs[player_num] <= ylowerthresh)
+								    		y = ((ylowerthresh + yadjust - ((ylowerthresh-mo_y_abs[player_num]+yadjust)/2))) * yr / 479 + 0x40;
+								    	
+							   			y = (y - origy > ybuf || y - origy < -ybuf) ? origy + ybuf * (((y - origy) > 0) - ((y - origy) < 0)): y;
+							   		}
+							    }
+						   	  }
 						   }
-						   ERROR_LOG(JVS, "P%d lightgun %4x,%4x - Sensor: %d - XComputed: %u, Ycomputed: %u", player_num + 1, x, y,
-						   	node_id, x, y);
+						   ERROR_LOG(JVS, "P%d lightgun %4x,%4x - Sensor: %d - XComputed: %u, Ycomputed: %u - Dx: %u, Dy: %u - Stab? %d", player_num + 1, x, y,
+						   	node_id, x, y, x-origx, y-origy, stabbing);
+						   
 						   JVS_OUT(x >> 8);		// X, MSB
 						   JVS_OUT(x);			// X, LSB
 						   JVS_OUT(y >> 8);		// Y, MSB
