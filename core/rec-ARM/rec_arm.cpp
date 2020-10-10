@@ -1130,15 +1130,15 @@ bool ngen_readm_immediate(RuntimeBlockInfo* block, shil_opcode* op, bool staging
 			ERROR_LOG(DYNAREC, "END RESULT: d0: %u", d0);
 
 			//Mov(w0, addr + 4);
-			ERROR_LOG(DYNAREC, "DEBUG: MOV32-2: arg1: %u, arg2: %u ", r0, op->rs1._imm + SZ_32F);
-			MOV32(r0, op->rs1._imm + SZ_32F);
+			ERROR_LOG(DYNAREC, "DEBUG: MOV32-2: arg1: %u, arg2: %u ", r0, op->rs1._imm + 4);
+			MOV32(r0, op->rs1._imm);
 			//GenCallRuntime((void (*)())ptr);
 			CALL((u32)ptr);
 			//Str(w0, sh4_context_mem_operand((u8*)op.rd.reg_ptr() + 4));
 			ERROR_LOG(DYNAREC, "DEBUG: VLDR-2: arg1: %u, arg2: %u ", d0, r0);
 			VLDR(d0, r0, 0);
 			ERROR_LOG(DYNAREC, "DEBUG: VSTR-2: arg1: %u, arg2: %u, arg3: %u", d0, r8, ((op->rd.reg_nofs()) / 4)+SZ_32F/4);
-			VSTR(d0, r8, ((op->rd.reg_nofs()) / 4)+SZ_32F/4);
+			VSTR(d0, r8, ((op->rd.reg_nofs()) / 4));
 			ERROR_LOG(DYNAREC, "END RESULT-2: d0: %u", d0);
 
 		}
