@@ -1646,15 +1646,22 @@ private:
 			// Not RAM
 			if (size == 8)
 			{
+				ERROR_LOG(DYNAREC, "------------ START DEBUG -----------");
 				verify(!regalloc.IsAllocAny(op.rd));
 				// Need to call the handler twice
+				ERROR_LOG(DYNAREC, "DEBUG: Mov: arg1: %u, arg2: %u ", w0, addr);
 				Mov(w0, addr);
 				GenCallRuntime((void (*)())ptr);
+				ERROR_LOG(DYNAREC, "DEBUG: Str: arg1: %u, arg2: %u, op.rd.reg_ptr: %u", w0, sh4_context_mem_operand(op.rd.reg_ptr()), op.rd.reg_ptr());
 				Str(w0, sh4_context_mem_operand(op.rd.reg_ptr()));
+				ERROR_LOG(DYNAREC, "END RESULT: w0: %u", w0);
 
+				ERROR_LOG(DYNAREC, "DEBUG: Mov-2: arg1: %u, arg2: %u ", w0, addr+4);
 				Mov(w0, addr + 4);
 				GenCallRuntime((void (*)())ptr);
+				ERROR_LOG(DYNAREC, "DEBUG: Str-2: arg1: %u, arg2: %u, op.rd.reg_ptr: %u", w0, sh4_context_mem_operand((u8*)op.rd.reg_ptr() + 4), ((u8*)op.rd.reg_ptr() + 4));
 				Str(w0, sh4_context_mem_operand((u8*)op.rd.reg_ptr() + 4));
+				ERROR_LOG(DYNAREC, "END RESULT-2: w0: %u", w0);
 			}
 			else
 			{
