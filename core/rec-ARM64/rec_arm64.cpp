@@ -1659,7 +1659,7 @@ private:
 				ERROR_LOG(DYNAREC, "DEBUG: Mov-2: arg1: %u, arg2: %lu", w0, addr+4);
 				Mov(w0, addr + 4);
 				GenCallRuntime((void (*)())ptr);
-				ERROR_LOG(DYNAREC, "DEBUG: Str-2: arg1: %u, arg2: %" PRIu64 ", op.rd.reg_ptr: %p", w0, sh4_context_mem_operand((u8*)op.rd.reg_ptr() + 4), (void*)((u8*)op.rd.reg_ptr() + 4));
+				ERROR_LOG(DYNAREC, "DEBUG: Str-2: arg1: %u, arg2: %" PRIu64 ", op.rd.reg_ptr: %p, old one: %p", w0, sh4_context_mem_operand((u8*)op.rd.reg_ptr() + 4), (void*)((u8*)op.rd.reg_ptr() + 4), (void*)(op.rd.reg_ptr()));
 				Str(w0, sh4_context_mem_operand((u8*)op.rd.reg_ptr() + 4));
 				ERROR_LOG(DYNAREC, "END RESULT-2: w0: %" PRIu64, w0);
 				ERROR_LOG(DYNAREC, "Sizeof MemOperand: w0: %u", sizeof(MemOperand));
