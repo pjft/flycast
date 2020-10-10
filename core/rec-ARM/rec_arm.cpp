@@ -12,7 +12,7 @@
 #include "hw/sh4/sh4_mem.h"
 
 #define _DEVEL 1
-#include "arm_emitter/arm_emitter.h"
+#include "arm_emitter.h"
 
 //#define CANONICALTEST
 
