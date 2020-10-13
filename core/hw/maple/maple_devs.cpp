@@ -2809,8 +2809,8 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 							  next_keycode = new_keycode;
 						   }
 						   if (settings.mapping.JammaSetup == JVS::Mazan) {
-						   		ERROR_LOG(JVS, "Mazan: Keycode: %d, %d", keycode, (keycode >> 8) & 0xFF);
-						   		switch ((keycode >> 8) & 0xFF)
+						   		ERROR_LOG(JVS, "Mazan: Keycode: %d, %d", keycode, (keycode >> 8) & 0x03);
+						   		switch ((keycode >> 8) & 0x03)
 						   		{
 						   			// (keycode >> 8) & 0xFF
 						   			// trigger: 2
@@ -2819,6 +2819,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   			// Aux C: N/A
 						   			// Reload: offscreen + 2
 						   			// start: 128
+						   			case 3:
 						   			case 2:
 							  			stabbing = true;
 							  			break;
