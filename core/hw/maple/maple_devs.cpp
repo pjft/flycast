@@ -2812,11 +2812,17 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   		ERROR_LOG(JVS, "Mazan: Keycode: %d, %d", keycode, (keycode >> 8) & 0xFF);
 						   		switch ((keycode >> 8) & 0xFF)
 						   		{
-						   			case 1:
-						   			case 3:
+						   			// (keycode >> 8) & 0xFF
+						   			// trigger: 2
+						   			// Aux A: 1
+						   			// Aux B: N/A
+						   			// Aux C: N/A
+						   			// Reload: offscreen + 2
+						   			// start: 128
+						   			case 2:
 							  			stabbing = true;
 							  			break;
-							  		case 2:
+							  		case 1:
 							  			parry = true;
 							  			break;
 						   		}
