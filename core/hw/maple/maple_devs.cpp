@@ -2809,8 +2809,8 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 							  next_keycode = new_keycode;
 						   }
 						   if (settings.mapping.JammaSetup == JVS::Mazan) {
-						   		ERROR_LOG(JVS, "Mazan: Keycode: %d", keycode, (keycode >> 8) & 0xFF);
-						   		switch (keycode)
+						   		ERROR_LOG(JVS, "Mazan: Keycode: %d, %d", keycode, (keycode >> 8) & 0xFF);
+						   		switch ((keycode >> 8) & 0xFF)
 						   		{
 						   			case 1:
 						   			case 3:
