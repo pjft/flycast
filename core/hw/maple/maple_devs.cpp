@@ -2851,12 +2851,14 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   				x1delta++;
 						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
 						   				break;
-						   			case 256: // up 2
+						   			case 256: // up 2 - Aux A - 1
 						   				y2delta--;
+						   				parry = true;
 						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
 						   				break;
-						   			case 512: // down 2
+						   			case 512: // down 2 - trigger - 2
 						   				y2delta++;
+						   				stabbing = true;
 						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
 						   				break;
 						   			case 1: // left 2
@@ -3064,14 +3066,35 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 
 						   if (settings.mapping.JammaSetup == JVS::Mazan && debug) {
 
-						   	int xdelta = (node_id == 1) ? x1delta : x2delta;
+						   	/*int xdelta = (node_id == 1) ? x1delta : x2delta;
 						   	int ydelta = (node_id == 1) ? y1delta : y2delta;
 
 						   	x = (mo_x_abs[player_num] + xdelta) * xr / 639 + 0x37;
 						    y = (mo_y_abs[player_num] + ydelta) * yr / 479 + 0x40;
 
 						    ERROR_LOG(JVS, "Sensor: %d - X: %d, Y: %d, xdelta: %d, ydelta: %d", 
-						    	node_id, x, y, xdelta, ydelta);
+						    	node_id, x, y, xdelta, ydelta);*/
+
+						   	s16 xdelta = 0;
+						   	s16 ydelta = 313 + (node_id-1) * 37;
+
+						   	if (stabbing) {
+						   		xdelta = 0;
+						   		ydelta = 0;
+						   	} 
+						   	else if (parry)
+						   	{
+						   		xdelta = 334 + (node_id-1) * 76;
+						   		if (x < 320) {
+						   			xdelta = -xdelta;
+						   		}
+						   		ydelta = (s16)(-y * 54/480)+27;
+						   	}
+
+						   	x = (mo_x_abs[player_num] + xdelta) * xr / 639 + 0x37;
+						    y = (mo_y_abs[player_num] + ydelta) * yr / 479 + 0x40;
+
+
 						    //ERROR_LOG(JVS, "P%d lightgun %4x,%4x - Sensor: %d - XComputed: %u, Ycomputed: %u - Dx: %u, Dy: %u - Stab? %d", player_num + 1, x, y,
 						   	//node_id, x, y, x-origx, y-origy, stabbing);
 						   }
