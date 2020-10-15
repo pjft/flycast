@@ -3067,8 +3067,8 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   	int xdelta = (node_id == 1) ? x1delta : x2delta;
 						   	int ydelta = (node_id == 1) ? y1delta : y2delta;
 
-						   	s16 x = (mo_x_abs[player_num] + xdelta) * xr / 639 + 0x37;
-						    s16 y = (mo_y_abs[player_num] + ydelta) * yr / 479 + 0x40;
+						   	x = (mo_x_abs[player_num] + xdelta) * xr / 639 + 0x37;
+						    y = (mo_y_abs[player_num] + ydelta) * yr / 479 + 0x40;
 
 						    ERROR_LOG(JVS, "Sensor: %d - X: %d, Y: %d, xdelta: %d, ydelta: %d", 
 						    	node_id, x, y, xdelta, ydelta);
