@@ -3062,7 +3062,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   if (settings.mapping.JammaSetup == JVS::Mazan) {
 						   	s16 defaultXParry = 334;
 						   	s16 defaultXParrySensor2 = 76;
-						   	s16 defaultYHold = 313-30;
+						   	s16 defaultYHold = 313-100;
 						   	s16 defaultYHoldSensor2 = 37;
 						   	s16 defaultYFactorParry = 54;
 						   	
@@ -3076,7 +3076,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   	else if (parry)
 						   	{
 						   		xdelta = defaultXParry + (node_id-1) * defaultXParrySensor2;
-						   		if (x < 320) {
+						   		if (x < 210) {
 						   			xdelta = -xdelta;
 						   		}
 						   		ydelta = (s16)(-y * defaultYFactorParry/480)+defaultYFactorParry/2;
