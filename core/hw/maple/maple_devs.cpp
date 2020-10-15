@@ -2643,7 +2643,7 @@ static bool alt = false;
 
 u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_out)
 {
-	ERROR_LOG(JVS, "START MESSAGE");
+	//ERROR_LOG(JVS, "START MESSAGE");
 	u8 jvs_cmd = buffer_in[0];
 	if (jvs_cmd == 0xF0)		// JVS reset
 		// Nothing to do
@@ -2768,7 +2768,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 		break;
 
 	default:
-		ERROR_LOG(JVS, "Reading Inputs: %d.", jvs_cmd);
+		//ERROR_LOG(JVS, "Reading Inputs: %d.", jvs_cmd);
 		bool stabbing = false;
 		bool parry = false;
 		if (jvs_cmd >= 0x20 && jvs_cmd <= 0x38) // Read inputs and more
@@ -2785,12 +2785,12 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 				case 0x20:	// Read digital input
 					{
 						JVS_STATUS1();	// report byte
-						ERROR_LOG(JVS, "btns ");
+						//ERROR_LOG(JVS, "btns ");
 
 						u8 global_btns = 0;
 						if (!(kcode[0] & NAOMI_TEST_KEY))		// Global test button
 						   global_btns |= 0x80;
-						ERROR_LOG(JVS, "glob %02x ", global_btns);
+						//ERROR_LOG(JVS, "glob %02x ", global_btns);
 						JVS_OUT(global_btns);		// test, tilt1, tilt2, tilt3, unused, unused, unused, unused
 
 						u32 next_keycode = 0;
@@ -2833,38 +2833,38 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 							  			break;
 						   		}
 						   		*/
-						   		ERROR_LOG(JVS, "Keycode: %d", keycode);
+						   		//ERROR_LOG(JVS, "Keycode: %d", keycode);
 						   		switch (keycode) {
-						   			case 1: // up
-						   				if (!alt)
-						   					y1delta--;
-						   				else
-						   					y2delta--;
+						   			case 8192: // up 1
+						   				y1delta--;
 						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
 						   				break;
-						   			case 2: // down
-						   				if (!alt)
-						   					y1delta++;
-						   				else
-						   					y2delta++;
+						   			case 4096: // down 1
+						   				y1delta++;
 						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
 						   				break;
-						   			case 3: // left
-						   				if (!alt)
-						   					x1delta--;
-						   				else
-						   					x2delta--;
+						   			case 2048: // left 1
+						   				x1delta--;
 						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
 						   				break;
-						   			case 4: // right
-						   				if (!alt)
-						   					x1delta++;
-						   				else
-						   					x2delta++;
+						   			case 1024: // right 1
+						   				x1delta++;
 						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
 						   				break;
-						   			case 5: // start
-						   				alt = !alt;
+						   			case 256: // up 2
+						   				y2delta--;
+						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
+						   				break;
+						   			case 512: // down 2
+						   				y2delta++;
+						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
+						   				break;
+						   			case 1: // left 2
+						   				x2delta--;
+						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
+						   				break;
+						   			case 32768: // right 2
+						   				x2delta++;
 						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
 						   				break;
 						   		}
@@ -2872,7 +2872,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 
 						   	}
 
-						   ERROR_LOG(JVS, "P%d %02x ", first_player + player + 1, (keycode >> 8) & 0xFF);
+						   //ERROR_LOG(JVS, "P%d %02x ", first_player + player + 1, (keycode >> 8) & 0xFF);
 						   JVS_OUT(keycode >> 8);
 						   if (buffer_in[cmdi + 2] > 1)
 						   {
@@ -2927,7 +2927,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						LOGJVS("ana ");
 						if (lightgun_as_analog)
 						{
-							ERROR_LOG(JVS, "lightgun as analog");
+							//ERROR_LOG(JVS, "lightgun as analog");
 							// Death Crimson / Confidential Mission
 							while (axis < buffer_in[cmdi + 1] && first_player * 2 + axis < 8)
 							{
@@ -2940,7 +2940,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 								   x = 0;
 								   y = 0;
 							   }
-							   ERROR_LOG(JVS, "P%d x,y:%4x,%4x ", player_num + 1, x, y);
+							   //ERROR_LOG(JVS, "P%d x,y:%4x,%4x ", player_num + 1, x, y);
 							   JVS_OUT(x >> 8);		// X, MSB
 							   JVS_OUT(x);			// X, LSB
 							   axis++;
@@ -3023,7 +3023,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 
 				case 0x25:	// Read screen pos inputs
 					{
-						ERROR_LOG(JVS, "Reading screen pos inputs");
+						//ERROR_LOG(JVS, "Reading screen pos inputs");
 						JVS_STATUS1();	// report byte
 						u32 channel = buffer_in[cmdi + 1] - 1;
 						int player_num = first_player + channel;
@@ -3202,7 +3202,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 		break;
 	}
 	jvs_length = length - 3;
-	ERROR_LOG(JVS, "FINISHED");
+	//ERROR_LOG(JVS, "FINISHED");
 	return length;
 }
 
