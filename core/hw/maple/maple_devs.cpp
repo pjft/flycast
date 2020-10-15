@@ -3070,7 +3070,8 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   	s16 x = (mo_x_abs[player_num] + xdelta) * xr / 639 + 0x37;
 						    s16 y = (mo_y_abs[player_num] + ydelta) * yr / 479 + 0x40;
 
-						    ERROR_LOG(JVS, "Sensor: %d - X: %d, Y: %d, Mouse X: %d, Mouse Y: %d, x%ddelta: %d, y%ddelta: %d", node_id, x, y, mo_x_abs[player_num], mo_y_abs[player_num], node_id,xdelta, node_id,ydelta);
+						    ERROR_LOG(JVS, "Sensor: %d - X: %d, Y: %d, xdelta: %d, ydelta: %d", 
+						    	node_id, x, y, xdelta, ydelta);
 						    //ERROR_LOG(JVS, "P%d lightgun %4x,%4x - Sensor: %d - XComputed: %u, Ycomputed: %u - Dx: %u, Dy: %u - Stab? %d", player_num + 1, x, y,
 						   	//node_id, x, y, x-origx, y-origy, stabbing);
 						   }
