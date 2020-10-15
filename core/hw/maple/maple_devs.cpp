@@ -2837,7 +2837,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   		}
 						   		*/
 						   		//ERROR_LOG(JVS, "Keycode: %d", keycode);
-						   		switch ((keycode >> 8) & 0xFF) {
+						   		switch ((keycode >> 8) & 0x03) {
 						   			case 8192: // up 1
 						   				y1delta--;
 						   				//ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
@@ -3054,37 +3054,20 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   u32 yr = 0x1fe - 0x40;
 						   s16 x = mo_x_abs[player_num] * xr / 639 + 0x37;
 						   s16 y = mo_y_abs[player_num] * yr / 479 + 0x40;
-						   s16 origx = x;
-						   s16 origy = y;
-
-					   	   s16 xbuf = 8;
-						   s16 ybuf = 40;
-						   s16 xblock = 40;
-						   s16 xblockoffset = 100;
-						   s16 yblock = 60;
-						   s16 yblockthresh = 160;
-						   s16 yadjust = 40;
-						   s16 ylowerthresh = 400;
-
-						   bool debug = true;
 
 						   // TO DO
 						   // Lower overall sword position on screen, relative to mouse
 						   // fix stabbing
 
-						   if (settings.mapping.JammaSetup == JVS::Mazan && debug) {
-
-						   	/*int xdelta = (node_id == 1) ? x1delta : x2delta;
-						   	int ydelta = (node_id == 1) ? y1delta : y2delta;
-
-						   	x = (mo_x_abs[player_num] + xdelta) * xr / 639 + 0x37;
-						    y = (mo_y_abs[player_num] + ydelta) * yr / 479 + 0x40;
-
-						    ERROR_LOG(JVS, "Sensor: %d - X: %d, Y: %d, xdelta: %d, ydelta: %d", 
-						    	node_id, x, y, xdelta, ydelta);*/
-
+						   if (settings.mapping.JammaSetup == JVS::Mazan) {
+						   	s16 defaultXParry = 334;
+						   	s16 defaultXParrySensor2 = 76;
+						   	s16 defaultYHold = 313-30;
+						   	s16 defaultYHoldSensor2 = 37;
+						   	s16 defaultYFactorParry = 54;
+						   	
 						   	s16 xdelta = 0;
-						   	s16 ydelta = 313 + (node_id-1) * 37;
+						   	s16 ydelta = defaultYHold + (node_id-1) * defaultYHoldSensor2;
 
 						   	if (stabbing) {
 						   		xdelta = 0;
@@ -3092,11 +3075,11 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   	} 
 						   	else if (parry)
 						   	{
-						   		xdelta = 334 + (node_id-1) * 76;
+						   		xdelta = defaultXParry + (node_id-1) * defaultXParrySensor2;
 						   		if (x < 320) {
 						   			xdelta = -xdelta;
 						   		}
-						   		ydelta = (s16)(-y * 54/480)+27;
+						   		ydelta = (s16)(-y * defaultYFactorParry/480)+defaultYFactorParry/2;
 						   	}
 
 						   	ERROR_LOG(JVS, "Sensor: %d - X: %d, Y: %d, xdelta: %d, ydelta: %d, stab? %d, parry? %d", 
@@ -3105,94 +3088,6 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   	x = (mo_x_abs[player_num] + xdelta) * xr / 639 + 0x37;
 						    y = (mo_y_abs[player_num] + ydelta) * yr / 479 + 0x40;
 
-
-						    //ERROR_LOG(JVS, "P%d lightgun %4x,%4x - Sensor: %d - XComputed: %u, Ycomputed: %u - Dx: %u, Dy: %u - Stab? %d", player_num + 1, x, y,
-						   	//node_id, x, y, x-origx, y-origy, stabbing);
-						   }
-
-
-						   if (settings.mapping.JammaSetup == JVS::Mazan && !debug)
-						   {
-						      origy = (mo_y_abs[player_num]+yadjust) * yr / 479 + 0x40;	
-						   	  if (node_id == 1 && !stabbing && ! parry) {
-
-						   	  	if (mo_y_abs[player_num] < yblockthresh) {
-							   		// block
-							   		y = (yblockthresh/*mo_y_abs[player_num] + yblock*/) * yr / 479 + 0x40;
-							   		if (mo_x_abs[player_num] <= 320)
-							   			x = ((xblockoffset+mo_x_abs[player_num])) * xr / 639 + 0x37;
-							   		else
-							   			x = ((mo_x_abs[player_num]-xblockoffset)) * xr / 639 + 0x37;
-						   	  	}
-						   	  	else {
-						   	  		// lower bounds
-						   	  		if (mo_y_abs[player_num] + yadjust <= 479)
-						   	  			y = (mo_y_abs[player_num] + yadjust) * yr / 479 + 0x40;
-						   	  		else
-						   	  			y = (479 - (479 - mo_y_abs[player_num] )/2) * yr / 479 + 0x40;
-						   	  	}
-						   	  }
-						   	  if (node_id == 2 || stabbing || parry) {
-							   	// node_id 2 is the sensor close to the player
-							   	////// ATTEMPT 1:
-							   	// Good, overall
-							   	// low range of movement with the mouse - mouse needs to be stuck in the lower-center part of the screen
-							   	/*
-							   	if (mo_x_abs[player_num] > 320)
-							   		x = (320 + ((mo_x_abs[player_num]-320)/2)) * xr / 639 + 0x37;
-							   	else
-							   		x = (320 - ((320-mo_x_abs[player_num])/2)) * xr / 639 + 0x37;
-							   	y = (479 - ((479-mo_y_abs[player_num])/2)) * yr / 479 + 0x40;
-							   	*/
-
-							   	/*if (mo_x_abs[player_num] > 320)
-							   		x = (320 + ((mo_x_abs[player_num]-320)/2)) * xr / 639 + 0x37;
-							   	else
-							   		x = (320 - ((320-mo_x_abs[player_num])/2)) * xr / 639 + 0x37;*/
-							   	//y = (mo_y_abs[player_num] + 20) * yr / 479 + 0x40;
-
-							   	
-							   	////// ATTEMPT 2:
-							   	// Adjust attempt 1 to mitigate problems
-							   	// low range of movement with the mouse - mouse needs to be stuck in the lower-center part of the screen
-
-
-							   	if (mo_y_abs[player_num] < yblockthresh) {
-							   		// block
-							   		y = (yblockthresh/*mo_y_abs[player_num] + yblock*/) * yr / 479 + 0x40;
-
-							   		if (mo_x_abs[player_num] <= 320)
-							   			x = ((xblockoffset+mo_x_abs[player_num]+xblock)) * xr / 639 + 0x37;
-							   		else
-							   			x = ((mo_x_abs[player_num]-xblockoffset-xblock)) * xr / 639 + 0x37;
-							   	} 
-							   	else
-							   	{
-							   		// middle of the screen, to center handle
-								   	if (mo_x_abs[player_num] > 320)
-								   		x = (320 + ((mo_x_abs[player_num]-320)/2)) * xr / 639 + 0x37;
-								   	else
-								   		x = (320 - ((320-mo_x_abs[player_num])/2)) * xr / 639 + 0x37;
-
-								   	// avoid angle to be too steep or sword won't register
-								    x = (x - origx > xbuf || x - origx < -xbuf) ? origx + xbuf * (((x - origx) > 0) - ((x - origx) < 0)): x;
-
-
-								    if (mo_y_abs[player_num] <= ylowerthresh) {
-								    	/*
-								    	if (mo_y_abs[player_num] + yadjust <= ylowerthresh)
-							   	  			y = (mo_y_abs[player_num] + yadjust) * yr / 479 + 0x40;
-							   	  		else
-							   	  			y = (ylowerthresh - (ylowerthresh -mo_y_abs[player_num] )/2) * yr / 479 + 0x40;
-								    	*/
-
-								    	if (mo_y_abs[player_num] <= ylowerthresh)
-								    		y = ((ylowerthresh + yadjust - ((ylowerthresh-mo_y_abs[player_num]+yadjust)/2))) * yr / 479 + 0x40;
-								    	
-							   			y = (y - origy > ybuf || y - origy < -ybuf) ? origy + ybuf * (((y - origy) > 0) - ((y - origy) < 0)): y;
-							   		}
-							    }
-						   	  }
 						   }
 						   /*ERROR_LOG(JVS, "P%d lightgun %4x,%4x - Sensor: %d - XComputed: %u, Ycomputed: %u - Dx: %u, Dy: %u - Stab? %d", player_num + 1, x, y,
 						   	node_id, x, y, x-origx, y-origy, stabbing);*/
