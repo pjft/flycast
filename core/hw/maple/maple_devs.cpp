@@ -2833,6 +2833,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 							  			break;
 						   		}
 						   		*/
+						   		ERROR_LOG(JVS, "Keycode: %d");
 						   		switch (keycode) {
 						   			case 1: // up
 						   				if (!alt)
