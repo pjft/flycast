@@ -3091,6 +3091,9 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   		ydelta = (s16)(-y * 54/480)+27;
 						   	}
 
+						   	ERROR_LOG(JVS, "Sensor: %d - X: %d, Y: %d, xdelta: %d, ydelta: %d, stab? %d, parry? %d", 
+						    	node_id, x, y, xdelta, ydelta, stabbing, parry);
+
 						   	x = (mo_x_abs[player_num] + xdelta) * xr / 639 + 0x37;
 						    y = (mo_y_abs[player_num] + ydelta) * yr / 479 + 0x40;
 
