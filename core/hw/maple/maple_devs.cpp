@@ -2854,19 +2854,24 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   				x1delta++;
 						   				//ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
 						   				break;
-						   			case 1: // up 2 - Aux A - 1
+						   			case 256: // up 2 - Aux A - 1
 						   				y2delta--;
-						   				parry = true;
+						   				
 						   				//ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
 						   				break;
-						   			case 2: // down 2 - trigger - 2
+						   			case 512: // down 2 - trigger - 2
 						   				y2delta++;
 						   				stabbing = true;
 						   				//ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
 						   				break;
-						   			case 1: // left 2
+						   			case 1: // left 2  previously "1"
+						   					// up 2 - Aux A - 1
 						   				x2delta--;
+						   				parry = true;
 						   				//ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
+						   				break;
+						   			case 2: // down 2 - trigger - 2
+						   				stabbing = true;
 						   				break;
 						   			case 32768: // right 2
 						   				x2delta++;
