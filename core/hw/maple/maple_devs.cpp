@@ -2635,6 +2635,12 @@ u16 jvs_io_board::read_rotary_encoder(f32 &encoder_value, f32 delta_value)
 #define JVS_OUT(b) buffer_out[length++] = b
 #define JVS_STATUS1() JVS_OUT(1)
 
+static int x1delta = 0;
+static int x2delta = 0;
+static int y1delta = 0; 
+static int y2delta = 0;
+static bool alt = false;
+
 u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_out)
 {
 	ERROR_LOG(JVS, "START MESSAGE");
@@ -2809,8 +2815,7 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 							  next_keycode = new_keycode;
 						   }
 						   if (settings.mapping.JammaSetup == JVS::Mazan) {
-						   		ERROR_LOG(JVS, "Mazan: Keycode: %d, %d", keycode, (keycode >> 8) & 0x03);
-						   		switch ((keycode >> 8) & 0x03)
+						   		/*switch ((keycode >> 8) & 0x03)
 						   		{
 						   			// (keycode >> 8) & 0xFF
 						   			// trigger: 2
@@ -2827,6 +2832,43 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 							  			parry = true;
 							  			break;
 						   		}
+						   		*/
+						   		switch (keycode) {
+						   			case 1: // up
+						   				if (!alt)
+						   					y1delta--;
+						   				else
+						   					y2delta--;
+						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
+						   				break;
+						   			case 2: // down
+						   				if (!alt)
+						   					y1delta++;
+						   				else
+						   					y2delta++;
+						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
+						   				break;
+						   			case 3: // left
+						   				if (!alt)
+						   					x1delta--;
+						   				else
+						   					x2delta--;
+						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
+						   				break;
+						   			case 4: // right
+						   				if (!alt)
+						   					x1delta++;
+						   				else
+						   					x2delta++;
+						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
+						   				break;
+						   			case 5: // start
+						   				alt = !alt;
+						   				ERROR_LOG(JVS, "Keycode: %d - x1delta: %d, x2delta: %d, y1delta: %d, y2delta: %d, alt: %d", keycode, x1delta, x2delta, y1delta, y2delta, alt);
+						   				break;
+						   		}
+
+
 						   	}
 
 						   ERROR_LOG(JVS, "P%d %02x ", first_player + player + 1, (keycode >> 8) & 0xFF);
@@ -3013,11 +3055,27 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 						   s16 yadjust = 40;
 						   s16 ylowerthresh = 400;
 
+						   bool debug = true;
+
 						   // TO DO
 						   // Lower overall sword position on screen, relative to mouse
 						   // fix stabbing
 
-						   if (settings.mapping.JammaSetup == JVS::Mazan)
+						   if (settings.mapping.JammaSetup == JVS::Mazan && debug) {
+
+						   	int xdelta = (node_id == 1) ? x1delta : x2delta;
+						   	int ydelta = (node_id == 1) ? y1delta : y2delta;
+
+						   	s16 x = (mo_x_abs[player_num] + xdelta) * xr / 639 + 0x37;
+						    s16 y = (mo_y_abs[player_num] + ydelta) * yr / 479 + 0x40;
+
+						    ERROR_LOG(JVS, "Sensor: %d - X: %d, Y: %d, Mouse X: %d, Mouse Y: %d, x%ddelta: %d, y%ddelta: %d", node_id, x, y, mo_x_abs[player_num], mo_y_abs[player_num], node_id,xdelta, node_id,ydelta);
+						    //ERROR_LOG(JVS, "P%d lightgun %4x,%4x - Sensor: %d - XComputed: %u, Ycomputed: %u - Dx: %u, Dy: %u - Stab? %d", player_num + 1, x, y,
+						   	//node_id, x, y, x-origx, y-origy, stabbing);
+						   }
+
+
+						   if (settings.mapping.JammaSetup == JVS::Mazan && !debug)
 						   {
 						      origy = (mo_y_abs[player_num]+yadjust) * yr / 479 + 0x40;	
 						   	  if (node_id == 1 && !stabbing && ! parry) {
@@ -3100,8 +3158,8 @@ u32 jvs_io_board::handle_jvs_message(u8 *buffer_in, u32 length_in, u8 *buffer_ou
 							    }
 						   	  }
 						   }
-						   ERROR_LOG(JVS, "P%d lightgun %4x,%4x - Sensor: %d - XComputed: %u, Ycomputed: %u - Dx: %u, Dy: %u - Stab? %d", player_num + 1, x, y,
-						   	node_id, x, y, x-origx, y-origy, stabbing);
+						   /*ERROR_LOG(JVS, "P%d lightgun %4x,%4x - Sensor: %d - XComputed: %u, Ycomputed: %u - Dx: %u, Dy: %u - Stab? %d", player_num + 1, x, y,
+						   	node_id, x, y, x-origx, y-origy, stabbing);*/
 						   
 						   JVS_OUT(x >> 8);		// X, MSB
 						   JVS_OUT(x);			// X, LSB
